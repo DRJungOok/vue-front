@@ -13,9 +13,7 @@ const submitPost = async () => {
         content: content.value,
         author: 'userName'
     });
-
-    alert('wrote success');
-    router.push('/'); // Redirect to the main page after writing
+    router.push('/');
 };
 </script>
 <template>
