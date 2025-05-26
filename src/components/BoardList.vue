@@ -1,5 +1,5 @@
 <script lang="js" setup>
-import { onUnmounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -10,9 +10,14 @@ const pageSize = 10;
 const router = useRouter();
 
 const fetchPost = async() => {
-    const res = await axios.get('/api/posts?page=${currntPage.value}&size=${page.Size}');
+    try {
+      const res = await axios.get(`/posts?page=${currentPage.value}&size=${pageSize}`);
     posts.value = res.data.posts;
     totalPages.value = res.data.totalPages;
+    } catch(e) {
+        console.error('getting list error:', e);
+        posts.value = [];
+    }
 }
 
 const changePage = (page) => {
@@ -38,7 +43,7 @@ const goToDetail = (id) => {
     router.push(`post/${id}`);
 }
 
-onUnmounted(() => {
+onMounted(() => {
     fetchPost();
 });
 </script>
@@ -62,13 +67,13 @@ onUnmounted(() => {
       </thead>
       <tbody>
         <tr v-for="(post, index) in posts" :key="post._id" @click="goToDetail(post._id)">
-          <td>{{ index + 1 + (currentPage - 1) * pageSize }}</td>
+          <td>{{ index + 1 + (currentPage - 1) * pageSize }}</td> 
           <td class="title">{{ post.title }}</td>
           <td>{{ post.author }}</td>
           <td>{{ formatDate(post.createdAt) }}</td>
           <td>{{ post.views }}</td>
         </tr>
-        <tr v-if="posts.length === 0">
+        <tr v-if="posts?.length === 0">
           <td colspan="5">게시글이 없습니다.</td>
         </tr>
       </tbody>

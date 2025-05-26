@@ -8,7 +8,7 @@ const content = ref('');
 const router = useRouter();
 
 const submitPost = async () => {
-    await axios.post('/api/posts', {
+    await axios.post('/posts', {
         title: title.value,
         content: content.value,
         author: 'userName'
