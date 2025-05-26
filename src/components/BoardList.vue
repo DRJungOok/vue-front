@@ -11,7 +11,7 @@ const router = useRouter();
 
 const fetchPost = async() => {
     try {
-      const res = await axios.get(`/posts?page=${currentPage.value}&size=${pageSize}`);
+      const res = await axios.get(`/api/posts?page=${currentPage.value}&size=${pageSize}`);
     posts.value = res.data.posts;
     totalPages.value = res.data.totalPages;
     } catch(e) {
@@ -40,7 +40,7 @@ const goToWrite = () => {
 }
 
 const goToDetail = (id) => {
-    router.push(`post/${id}`);
+    router.push(`/post/${id}`);
 }
 
 onMounted(() => {

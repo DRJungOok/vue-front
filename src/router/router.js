@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router';
 import BoardList from '@/components/BoardList.vue';
 import WritePage from '@/components/WritePage.vue';
+import PostDetail from '@/components/PostDetail.vue';
 
 const routes = [
     {
@@ -12,6 +13,11 @@ const routes = [
         path: '/write',
         name: 'WritePage',
         component: WritePage
+    },
+    {
+        path: '/post/:id',
+        name: 'PoastDetail',
+        component: PostDetail,
     },
 ]
 
