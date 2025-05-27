@@ -9,42 +9,57 @@ const totalPages = ref(1);
 const pageSize = 10;
 const router = useRouter();
 
-const fetchPost = async() => {
-    try {
-      const res = await axios.get(`/api/posts?page=${currentPage.value}&size=${pageSize}`);
+const isLoggedIn = ref(false);
+
+const fetchPost = async () => {
+  try {
+    const res = await axios.get(`/api/posts?page=${currentPage.value}&size=${pageSize}`);
     posts.value = res.data.posts;
     totalPages.value = res.data.totalPages;
-    } catch(e) {
-        console.error('getting list error:', e);
-        posts.value = [];
-    }
-}
+  } catch (e) {
+    console.error('getting list error:', e);
+    posts.value = [];
+  }
+};
 
 const changePage = (page) => {
-    currentPage.value = page;
-    fetchPost();
-}
+  currentPage.value = page;
+  fetchPost();
+};
 
 const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-}
+  return new Date(dateStr).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
 
 const goToWrite = () => {
-    router.push('/write');
-}
+  router.push('/write');
+};
+
+const gotoLogin = () => {
+  router.push('/login');
+};
+
+const logout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+  alert('로그아웃 되었습니다.');
+  isLoggedIn.value = false;
+  router.push('/login');
+};
 
 const goToDetail = (id) => {
-    router.push(`/post/${id}`);
-}
+  router.push(`/post/${id}`);
+};
 
 onMounted(() => {
-    fetchPost();
+  fetchPost();
+  isLoggedIn.value = !!localStorage.getItem('token');
 });
 </script>
 
@@ -52,7 +67,11 @@ onMounted(() => {
   <div class="container">
     <div class="header">
       <h1>📋 게시판</h1>
-      <button @click="goToWrite">글쓰기</button>
+      <div class="button-group">
+        <button v-if="isLoggedIn" @click="goToWrite">글쓰기</button>
+        <button v-if="isLoggedIn" @click="logout">로그아웃</button>
+        <button v-else @click="gotoLogin">로그인</button>
+      </div>
     </div>
 
     <table class="post-table">
@@ -66,8 +85,12 @@ onMounted(() => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(post, index) in posts" :key="post._id" @click="goToDetail(post._id)">
-          <td>{{ index + 1 + (currentPage - 1) * pageSize }}</td> 
+        <tr
+          v-for="(post, index) in posts"
+          :key="post._id"
+          @click="goToDetail(post._id)"
+        >
+          <td>{{ index + 1 + (currentPage - 1) * pageSize }}</td>
           <td class="title">{{ post.title }}</td>
           <td>{{ post.author }}</td>
           <td>{{ formatDate(post.createdAt) }}</td>
@@ -105,6 +128,11 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .header button {
