@@ -19,7 +19,8 @@ const login = async () => {
     console.log(username.value, password.value);
 
     localStorage.setItem('token', res.data.token);
-    localStorage.setItem('username', username.value);
+    localStorage.setItem('username', res.data.username);
+    console.log('로그인 성공:', res.data.username);
     alert(`${username.value}님, 환영합니다!`);
     router.push('/');
     } catch (error) {

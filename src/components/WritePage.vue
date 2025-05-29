@@ -8,10 +8,11 @@ const content = ref('');
 const router = useRouter();
 
 const submitPost = async () => {
+  const userName = localStorage.getItem('username') || 'Anonymous';
     await axios.post('/api/posts', {
         title: title.value,
         content: content.value,
-        author: 'userName'
+        author: userName
     });
     router.push('/');
 };

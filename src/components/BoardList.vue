@@ -8,6 +8,7 @@ const currentPage = ref(1);
 const totalPages = ref(1);
 const pageSize = 10;
 const router = useRouter();
+const currentUser = ref(localStorage.getItem('username') || '');
 
 const isLoggedIn = ref(false);
 
@@ -37,6 +38,8 @@ const formatDate = (dateStr) => {
   });
 };
 
+console.log('비교 ::', posts.author, currentUser.value);
+
 const goToWrite = () => {
   router.push('/write');
 };
@@ -55,6 +58,18 @@ const logout = () => {
 
 const goToDetail = (id) => {
   router.push(`/post/${id}`);
+};
+
+const deletePost = async (id) => {
+  if (!confirm('정말로 삭제하시겠습니까?')) return;
+  try {
+    await axios.delete(`/api/posts/${id}`);
+    alert('게시글이 삭제되었습니다.');
+    fetchPost();
+  } catch (e) {
+    console.error('Error deleting post:', e);
+    alert('게시글 삭제에 실패했습니다.');
+  }
 };
 
 onMounted(() => {
@@ -82,33 +97,26 @@ onMounted(() => {
           <th>작성자</th>
           <th>작성일</th>
           <th>조회수</th>
+          <th>삭제</th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(post, index) in posts"
-          :key="post._id"
-          @click="goToDetail(post._id)"
-        >
+        <tr v-for="(post, index) in posts" :key="post._id" @click="goToDetail(post._id)">
           <td>{{ index + 1 + (currentPage - 1) * pageSize }}</td>
           <td class="title">{{ post.title }}</td>
           <td>{{ post.author }}</td>
           <td>{{ formatDate(post.createdAt) }}</td>
           <td>{{ post.views }}</td>
-        </tr>
-        <tr v-if="posts?.length === 0">
-          <td colspan="5">게시글이 없습니다.</td>
+          <td>
+            <button v-if="isLoggedIn && post.author === currentUser" @click.stop="deletePost(post._id)">삭제</button>
+          </td>
         </tr>
       </tbody>
     </table>
 
     <div class="pagination">
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        @click="changePage(page)"
-        :class="{ active: currentPage === page }"
-      >
+      <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+        :class="{ active: currentPage === page }">
         {{ page }}
       </button>
     </div>
@@ -192,5 +200,19 @@ onMounted(() => {
   background-color: #1976d2;
   color: white;
   border-color: #1976d2;
+}
+
+.post-table button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  background-color: #e53935;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.post-table button:hover {
+  background-color: #c62828;
 }
 </style>
